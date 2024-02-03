@@ -1,6 +1,4 @@
-![](./ObjectReplacements/Object 1){width="2.6047in" height="2.7602in"}
-
-CyberX3D for C++
+# CyberX3D for C++
 
 User's Guide
 
