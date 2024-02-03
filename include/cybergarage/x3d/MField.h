@@ -25,7 +25,7 @@ class MField : public Field {
 public:
 	
 	MField();
-	~MField();
+	virtual ~MField();
 
 	int getSize();
 

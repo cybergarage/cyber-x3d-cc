@@ -6,6 +6,10 @@
 *
 *	File:	VRML97Parser.cpp
 *
+*	03/12/04
+*		- Added the following functions to parse more minimum memory.
+*		  VRML97ParserSetBufSize(), VRML97ParserGetBufSize().
+*
 ******************************************************************/
 
 #include <stdio.h>
@@ -57,9 +61,13 @@ bool VRML97Parser::load(const char *fileName, void (*callbackFn)(int nLine, void
 		return false;
 	}
 
+#ifdef USE_MAX_LEX_BUFFER
 	fseek(fp, 0, SEEK_END);
 	int lexBufferSize = ftell(fp);
 	fseek(fp, 0, SEEK_SET);
+#else
+	int lexBufferSize = VRML97ParserGetBufSize();
+#endif
 
 	if (GetParserObject() == NULL)
 		MakeLexerBuffers(lexBufferSize, DEFAULT_LEX_LINE_BUFFER_SIZE);
@@ -87,4 +95,20 @@ bool VRML97Parser::load(const char *fileName, void (*callbackFn)(int nLine, void
 #endif
 
 	return getParserResult();
+}
+
+////////////////////////////////////////////////
+//	VRML97Parser::load
+////////////////////////////////////////////////
+
+static int vrml97parserBufSize = VRML97_PARSER_DEFAULT_BUF_SIZE;
+
+void  CyberX3D::VRML97ParserSetBufSize(int bufSize)
+{
+	vrml97parserBufSize = bufSize;
+}
+
+int CyberX3D::VRML97ParserGetBufSize()
+{
+	return vrml97parserBufSize;
 }

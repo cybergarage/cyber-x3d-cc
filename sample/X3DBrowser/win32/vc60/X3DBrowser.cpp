@@ -69,17 +69,26 @@ HGLRC OpenGLSetup( HWND hWnd )
 }
 
 ////////////////////////////////////////////////////////// 
+//  ClearSceneGraph
+////////////////////////////////////////////////////////// 
+
+void ClearSceneGraph(HWND hWnd)
+{
+	sceneGraph.clear();
+}
+
+////////////////////////////////////////////////////////// 
 //  LoadSceneGraph
 ////////////////////////////////////////////////////////// 
 
-void LoadSceneGraph(HWND hWnd)
-{
-    OPENFILENAME ofn;     
-	char szFile[256];        
-    char szFileTitle[256];   
-	char szFilter[256] = "X3D Files(*.x3d)\0*.x3d\0VRML Files(*.wrl)\0*.wrl\0All Files(*.*)\0*.*\0";
+static char szFile[256];        
+static char szFileTitle[256];   
+static char szFilter[] = "X3D Files(*.x3d)\0*.x3d\0VRML Files(*.wrl)\0*.wrl\0All Files(*.*)\0*.*\0";
 
+void InitOpenFileName(OPENFILENAME &ofn, HWND hWnd)
+{
 	szFile[0] = '\0';
+	szFileTitle[0] = '\0';
 
 	memset(&ofn, 0, sizeof(OPENFILENAME));
 	ofn.lStructSize = sizeof(OPENFILENAME);
@@ -102,19 +111,49 @@ void LoadSceneGraph(HWND hWnd)
 	ofn.lCustData = 0L;
 	ofn.lpfnHook = (LPOFNHOOKPROC)NULL;
 	ofn.lpTemplateName = (LPSTR)NULL;
+}
 
+void LoadSceneGraph(HWND hWnd)
+{
+    OPENFILENAME ofn;     
+
+	InitOpenFileName(ofn, hWnd);
 	if (GetOpenFileName(&ofn) == 0)
 		return;
 
 	if (sceneGraph.load(ofn.lpstrFile) == false) {
-		char	msg[1024];
-		sprintf(msg, "Loading Error (%d) : %s", sceneGraph.getParserErrorLineNumber(), sceneGraph.getParserErrorMessage());
+		char	msg[10240];
+		sprintf(msg, "Loading Error (%d) : %s, %s", 
+			sceneGraph.getParserErrorLineNumber(), 
+			sceneGraph.getParserErrorMessage(),
+			sceneGraph.getParserErrorLineString());
 		MessageBox(hWnd, msg, szTitle, MB_ICONEXCLAMATION | MB_OK);
 	}
 	else {
 		sceneGraph.initialize();
 		if (sceneGraph.getViewpointNode() == NULL)
 			sceneGraph.zoomAllViewpoint();
+	}
+}
+
+////////////////////////////////////////////////////////// 
+//  SaveSceneGraph
+////////////////////////////////////////////////////////// 
+
+void SaveSceneGraph(HWND hWnd)
+{
+    OPENFILENAME ofn;     
+
+	InitOpenFileName(ofn, hWnd);
+	if (GetSaveFileName(&ofn) == 0)
+		return;
+
+	//if (sceneGraph.save(ofn.lpstrFile) == false) {
+	if (sceneGraph.saveXML(ofn.lpstrFile) == false) {
+		char	msg[10240];
+		sprintf(msg, "Saving Error : %s", 
+			ofn.lpstrFile);
+		MessageBox(hWnd, msg, szTitle, MB_ICONEXCLAMATION | MB_OK);
 	}
 }
 
@@ -239,8 +278,16 @@ LONG WINAPI WndProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )
 
 	case WM_COMMAND:
 		switch (LOWORD(wParam)) {
+		case MENU_FILENEW:
+			ClearSceneGraph(hWnd);
+			InvalidateRect(hWnd, NULL, NULL);
+			break;
 		case MENU_FILEOPEN:
 			LoadSceneGraph(hWnd);
+			InvalidateRect(hWnd, NULL, NULL);
+			break;
+		case MENU_FILESAVE:
+			SaveSceneGraph(hWnd);
 			InvalidateRect(hWnd, NULL, NULL);
 			break;
 		case MENU_QUIT:

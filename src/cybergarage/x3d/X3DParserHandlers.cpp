@@ -84,7 +84,7 @@ void X3DParserHandlers::exception(const SAXParseException& e)
 	presult->setErrorLineNumber(e.getLineNumber());
 	presult->setErrorToken(XMLCh2Char(e.getPublicId()));
 	presult->setErrorMessage(XMLCh2Char(e.getMessage()));
-	presult->setErrorLineString(XMLCh2Char(e.getMessage()));
+	presult->setErrorLineString(XMLCh2Char(e.getPublicId()));
 }
 
 void X3DParserHandlers::error(const SAXParseException& e)

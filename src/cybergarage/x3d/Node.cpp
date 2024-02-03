@@ -6,6 +6,13 @@
 *
 *	File:	Node.cpp
 *
+*	03/15/04
+*	- Thanks for Simon Goodall <sg02r@ecs.soton.ac.uk>
+*	- Fixed a memory leak in Node::outputContext().
+*	03/17/04
+*	- Thanks for Simon Goodall <sg02r@ecs.soton.ac.uk>
+*	- Changed getChildNodeByType() to check the reference node type if the child node is the instance node.
+*
 ******************************************************************/
 
 #include <assert.h>
@@ -820,8 +827,12 @@ Node *Node::getChildNodes()
 
 Node *Node::getChildNodeByType(int type) 
 {
+	// Thanks for Simon Goodall (03/17/04)
 	for (Node *node = getChildNodes(); node != NULL; node = node->next()) {
-		if (node->getType() == type)
+		int nodeType = node->getType();
+		if (node->isInstanceNode() == true) 
+			nodeType = node->getReferenceNode()->getType();
+		if (nodeType == type)
 			return node;
 	}
 	return NULL;
@@ -843,7 +854,6 @@ bool Node::hasChildNodes()
 		return false;
 	return true;
 }
-
 
 ////////////////////////////////////////////////
 //	Add / Remove children (for Groupingnode)
@@ -1067,7 +1077,8 @@ void Node::outputContext(std::ostream& printStream, char *indentString1, char *i
 	strcpy(indentString, indentString1);
 	strcat(indentString, indentString2);
 	outputContext(printStream, indentString);
-	delete indentString;
+	// Thanks for Simon Goodall (03/15/04)
+	delete []indentString;
 }
 
 void Node::output(std::ostream& printStream, int indentLevet) 

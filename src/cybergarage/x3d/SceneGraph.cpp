@@ -190,7 +190,6 @@ bool SceneGraph::add(const char *filename, bool bInitialize, void (*callbackFn)(
 
 	SetParserResultObject(presult);
 
-
 	bool parserRet = parser->load(filename, callbackFn, callbackFnInfo);
 	presult->setParserResult(parserRet);
 	if (parserRet == false)

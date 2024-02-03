@@ -11,6 +11,8 @@
  
 #include <stdio.h>
 #include <string.h>
+#include <string>
+#include <sstream>
 #include <cybergarage/x3d/VRML97Parser.h>
 #include <cybergarage/x3d/VRML97ParserFunc.h>
 #include <cybergarage/x3d/VRML97.tab.h>
@@ -18,9 +20,8 @@
 using namespace CyberX3D;
 
 static int	nCurrentLine = 1;
-static char	*buffer;
-static char	*lineBuffer;
-static char	*name;
+static std::string lineBuffer;
+static std::string name;
 static void (*callbackFn)(int nLine, void *info);
 static void *callbackFnInfo;
 
@@ -48,7 +49,7 @@ static void *callbackFnInfo;
 [ \t]+				;
 #.*\n				{ CurrentLineIncrement();}
 #.*					{ }
-\n.*				{ strcpy(lineBuffer, yytext+1); CurrentLineIncrement(); yyless(1);}
+\n.*				{ lineBuffer = (yytext+1); CurrentLineIncrement(); yyless(1);}
 \"[^\"]*\"			{ yytext[yyleng-1] = '\0'; yylval.sval = yytext+1;  return STRING; }
 
 TRUE				{ yylval.ival = 1; return NUMBER; }
@@ -245,28 +246,30 @@ NULL				{ return NULL_STRING; }
 <INITIAL>value_changed		{ return S_VALUE_CHANGED; }
 
 <INITIAL>DEF	{
-	int c, n;
-	c = n = 0;
+	int c = 0;
+	std::ostringstream defBuf;
 	do {
 		c = input();
-		buffer[n++] = c;
+		defBuf << (char)(c);
 	} while (c != '{' && c != EOF);
-	buffer[n-1] = '\0';
 
 	char	defName[256];
 	char	nodeName[256];
-	sscanf(buffer, "%s %s", defName, nodeName);
+	std::string defStr = defBuf.str();
+	const char *defCStr = defStr.c_str();
+	sscanf(defStr.c_str(), "%s %s", defName, nodeName);
 
-	sprintf(buffer, "%s {", nodeName);
+	std::string unputbuf;
+	unputbuf.append(nodeName);
+	unputbuf.append(" {");
 
 	SetDEFName(defName);
-	UnputString(buffer);
+	UnputString((char *)unputbuf.c_str());
 }
 
 <INITIAL>USE	{
-	int c, n;
-	c = n = 0;
-
+	std::ostringstream useBuf;
+	int c = 0;
 	do {
 		c = input();
 		if (c == '\n')
@@ -274,16 +277,16 @@ NULL				{ return NULL_STRING; }
 	} while (c == '\t' || c == ' ');
 
 	while (('0' <= c && c <= '9') || ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z') || c == '_' || c == '-' || c == '+') {
-		buffer[n++] = c;
+		useBuf << (char)(c);
 		c = input();
 		if (c == '\n')
 			nCurrentLine++;
 	}
-	buffer[n] = '\0';
 	unput(c);
 
+	std::string useStr = useBuf.str();
 #ifdef UNUSE_DEF_NODE
-	Node *defNode = GetParserObject()->findNode(buffer);
+	Node *defNode = GetParserObject()->findLastNode(useStr.c_str());
 	Node *useParentNode = GetCurrentNodeObject();
 	if (defNode) {	
 		if (useParentNode == NULL || (useParentNode != defNode && useParentNode->isAncestorNode(defNode) == false)) {
@@ -294,7 +297,7 @@ NULL				{ return NULL_STRING; }
 	}
 	return USE;
 #else
-	Node *node = GetParserObject()->findNode(buffer);
+	Node *node = GetParserObject()->findLastNode(useStr.c_str());
 	if (node) {
 		Node *defNode = node->createDEFNode();
 		ParserAddNode(defNode);
@@ -304,22 +307,22 @@ NULL				{ return NULL_STRING; }
 }
 
 <INITIAL>PROTO	{
-	int c, n;
-	c = n = 0;
+	std::ostringstream protoNameBuf;
+	int c = 0;
 	do {
 		c = input();
-		buffer[n++] = c;
+		protoNameBuf << (char)(c);
 		if (c == '\n')
 			nCurrentLine++;
 	} while (c != '[' && c != EOF);
-	buffer[n-1] = '\0';
 
-	char *protoName = new char[strlen(buffer)+1];
-	sscanf(buffer, "%s", protoName);
+	std::string protoNameStr = protoNameBuf.str();
+	char *protoName = new char[protoNameStr.length()+1];
+	sscanf(protoNameStr.c_str(), "%s", protoName);
 
 	int bigBracket = 1;
 
-	n = 0;
+	std::ostringstream fieldBuf;
 	do {
 		c = input();
 		if (c == ']') {
@@ -331,12 +334,9 @@ NULL				{ return NULL_STRING; }
 			bigBracket++;
 		if (c == '\n')
 			nCurrentLine++;
-		buffer[n++] = c;
+		fieldBuf << (char)(c);
 	} while (c != EOF);
-	buffer[n-1] = '\0';
-
-	char *fieldString = new char[strlen(buffer)+1];
-	strcpy(fieldString, buffer);
+	std::string fieldString = fieldBuf.str();
 
 	while (c != '{' && c != EOF) {
 		c = input();
@@ -344,10 +344,10 @@ NULL				{ return NULL_STRING; }
 			nCurrentLine++;
 	}
 
-	n = 0;
+	std::ostringstream protoDefBuf;
 	do {
 		c = input();
-		buffer[n++] = c;
+		protoDefBuf << (char)(c);
 		if (c == '\n')
 			nCurrentLine++;
 	} while (c != '{' && c != EOF);
@@ -377,15 +377,14 @@ NULL				{ return NULL_STRING; }
 				do {
 					c = input();
 				} while (c != '\n');
-				buffer[n++] = '\n';
+				protoDefBuf << '\n';
 				nCurrentLine++;
 			}
 		}
 
-		buffer[n++] = c;
+		protoDefBuf << (char)(c);
 
 	} while (0 < inputFlag && c != EOF);
-	buffer[n] = '\0';
 
 	do {
 		c = input();
@@ -393,26 +392,24 @@ NULL				{ return NULL_STRING; }
 			nCurrentLine++;
 	} while (c != '}' && c != EOF);
 
-	PROTO *proto = AddPROTOInfo(protoName, buffer, fieldString);
-//	proto->getString(buffer);
-//	UnputString(buffer);
+	std::string protoDefSet = protoDefBuf.str();
+	PROTO *proto = AddPROTOInfo(protoName, (char *)protoDefSet.c_str(), (char *)fieldString.c_str());
 
-	delete protoName;
-	delete[] fieldString;
+	delete []protoName;
 }
 
 <INITIAL>ROUTE {
-	int c, n;
-	c = n = 0;
+	int c = 0;
+	std::ostringstream routeBuf;
 	do {
 		c = input();
 		if (c == '\n')
 			CurrentLineIncrement();
 		else
-			buffer[n++] = c;
+			routeBuf << (char)(c);
 	} while (c != '\n' && c != EOF);
-	buffer[n] = '\0';
-	ParserAddRouteInfo(buffer);
+	std::string routeStr = routeBuf.str();
+	ParserAddRouteInfo((char *)routeStr.c_str());
 }
 
 <INITIAL>[_a-zA-Z][_\+\-a-zA-Z0-9]* {
@@ -461,9 +458,9 @@ NULL				{ return NULL_STRING; }
 		proto->deleteFields();
 	}
 	else {
-		strcpy(name, yytext);
-		yylval.sval = name;	
-		return	NAME;
+		name = yytext;
+		yylval.sval = (char *)name.c_str();	
+		return NAME;
 	}
 }
 
@@ -534,19 +531,12 @@ void CyberX3D::CurrentLineIncrement()
 
 void CyberX3D::MakeLexerBuffers(int lexBufferSize, int lineBufferSize)
 {
-	buffer = (char *)malloc(sizeof(char) * lexBufferSize);	
-	lineBuffer = (char *)malloc(sizeof(char) * lineBufferSize);	
-	lineBuffer[0] = '\0';
 	yy_current_buffer = yy_create_buffer(yyin, lexBufferSize);
-	name = (char *)malloc(sizeof(char) * lineBufferSize);	
 }
 
 void CyberX3D::DeleteLexerBuffers(void)
 {
-	free(buffer);
-	free(lineBuffer);
 	yy_delete_buffer(yy_current_buffer);
-	free(name);
 }
 
 void CyberX3D::SetLexCallbackFn(void (*func)(int nLine, void *info), void *fnInfo)
@@ -584,7 +574,7 @@ int CyberX3D::GetCurrentLineNumber(void)
 
 char *CyberX3D::GetErrorLineString(void)
 {
-  return lineBuffer;
+  return (char *)lineBuffer.c_str();
 }
 
 

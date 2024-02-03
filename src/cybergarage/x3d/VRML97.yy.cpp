@@ -9,7 +9,7 @@
 #define YY_FLEX_MINOR_VERSION 5
 
 #include <stdio.h>
-
+#include <errno.h>
 
 /* cfront 1.2 defines "c_plusplus" instead of "__cplusplus" */
 #ifdef c_plusplus
@@ -22,7 +22,9 @@
 #ifdef __cplusplus
 
 #include <stdlib.h>
-//#include <unistd.h>
+#ifndef _WIN32
+#include <unistd.h>
+#endif
 
 /* Use prototypes in function declarations. */
 #define YY_USE_PROTOS
@@ -61,6 +63,7 @@
 #else
 #define YY_PROTO(proto) ()
 #endif
+
 
 /* Returned upon end-of-file. */
 #define YY_NULL 0
@@ -1266,6 +1269,8 @@ char *yytext;
  
 #include <stdio.h>
 #include <string.h>
+#include <string>
+#include <sstream>
 #include <cybergarage/x3d/VRML97Parser.h>
 #include <cybergarage/x3d/VRML97ParserFunc.h>
 #include <cybergarage/x3d/VRML97.tab.h>
@@ -1273,9 +1278,8 @@ char *yytext;
 using namespace CyberX3D;
 
 static int	nCurrentLine = 1;
-static char	*buffer;
-static char	*lineBuffer;
-static char	*name;
+static std::string lineBuffer;
+static std::string name;
 static void (*callbackFn)(int nLine, void *info);
 static void *callbackFnInfo;
 
@@ -1285,7 +1289,7 @@ static void *callbackFnInfo;
 #define SCRIPTNODE 1
 
 #define YY_ALWAYS_INTERACTIVE 1
-#line 1289 "lex.yy.c"
+#line 1293 "lex.yy.c"
 
 /* Macros after this point can all be overridden by user definitions in
  * section 1.
@@ -1385,9 +1389,20 @@ YY_MALLOC_DECL
 			YY_FATAL_ERROR( "input in flex scanner failed" ); \
 		result = n; \
 		} \
-	else if ( ((result = fread( buf, 1, max_size, yyin )) == 0) \
-		  && ferror( yyin ) ) \
-		YY_FATAL_ERROR( "input in flex scanner failed" );
+	else \
+		{ \
+		errno=0; \
+		while ( (result = fread(buf, 1, max_size, yyin))==0 && ferror(yyin)) \
+			{ \
+			if( errno != EINTR) \
+				{ \
+				YY_FATAL_ERROR( "input in flex scanner failed" ); \
+				break; \
+				} \
+			errno=0; \
+			clearerr(yyin); \
+			} \
+		}
 #endif
 
 /* No semi-colon after return; correct usage is to write "yyterminate();" -
@@ -1436,10 +1451,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
 
-#line 36 "VRML97.l"
+#line 37 "VRML97.l"
 
 
-#line 1443 "lex.yy.c"
+#line 1458 "lex.yy.c"
 
 	if ( yy_init )
 		{
@@ -1524,1043 +1539,1045 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 38 "VRML97.l"
+#line 39 "VRML97.l"
 { yylval.ival = atoi(yytext); return NUMBER;}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 39 "VRML97.l"
+#line 40 "VRML97.l"
 { yylval.fval = (float)atof(yytext); return FLOAT;}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 40 "VRML97.l"
+#line 41 "VRML97.l"
 { sscanf(yytext, "0x%x", &yylval.ival); return NUMBER; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 42 "VRML97.l"
+#line 43 "VRML97.l"
 { return ','; }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 43 "VRML97.l"
+#line 44 "VRML97.l"
 { BEGIN INITIAL;	return '}'; }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 44 "VRML97.l"
+#line 45 "VRML97.l"
 { return '{'; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 45 "VRML97.l"
+#line 46 "VRML97.l"
 { return '['; }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 46 "VRML97.l"
+#line 47 "VRML97.l"
 { return ']'; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 48 "VRML97.l"
+#line 49 "VRML97.l"
 ;
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 49 "VRML97.l"
+#line 50 "VRML97.l"
 { CurrentLineIncrement();}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 50 "VRML97.l"
+#line 51 "VRML97.l"
 { }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 51 "VRML97.l"
-{ strcpy(lineBuffer, yytext+1); CurrentLineIncrement(); yyless(1);}
+#line 52 "VRML97.l"
+{ lineBuffer = (yytext+1); CurrentLineIncrement(); yyless(1);}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 52 "VRML97.l"
+#line 53 "VRML97.l"
 { yytext[yyleng-1] = '\0'; yylval.sval = yytext+1;  return STRING; }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 54 "VRML97.l"
+#line 55 "VRML97.l"
 { yylval.ival = 1; return NUMBER; }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 55 "VRML97.l"
+#line 56 "VRML97.l"
 { yylval.ival = 0; return NUMBER; }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 56 "VRML97.l"
+#line 57 "VRML97.l"
 { return NULL_STRING; }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 58 "VRML97.l"
+#line 59 "VRML97.l"
 { return ANCHOR; }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 59 "VRML97.l"
+#line 60 "VRML97.l"
 { return APPEARANCE; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 60 "VRML97.l"
+#line 61 "VRML97.l"
 { return AUDIOCLIP; }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 61 "VRML97.l"
+#line 62 "VRML97.l"
 { return BACKGROUND; }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 62 "VRML97.l"
+#line 63 "VRML97.l"
 { return BILLBOARD; }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 63 "VRML97.l"
+#line 64 "VRML97.l"
 { return BOX; }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 64 "VRML97.l"
+#line 65 "VRML97.l"
 { return COLLISION; }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 65 "VRML97.l"
+#line 66 "VRML97.l"
 { return COLOR; }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 66 "VRML97.l"
+#line 67 "VRML97.l"
 { return COLOR_INTERP; }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 67 "VRML97.l"
+#line 68 "VRML97.l"
 { return CONE; }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 68 "VRML97.l"
+#line 69 "VRML97.l"
 { return COORDINATE; }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 69 "VRML97.l"
+#line 70 "VRML97.l"
 { return COORDINATE_INTERP; }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 70 "VRML97.l"
+#line 71 "VRML97.l"
 { return CYLINDER; }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 71 "VRML97.l"
+#line 72 "VRML97.l"
 { return CYLINDER_SENSOR; }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 72 "VRML97.l"
+#line 73 "VRML97.l"
 { return DIRECTIONALLIGHT; }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 73 "VRML97.l"
+#line 74 "VRML97.l"
 { return ELEVATION_GRID; }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 74 "VRML97.l"
+#line 75 "VRML97.l"
 { return EXTRUSION; }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 75 "VRML97.l"
+#line 76 "VRML97.l"
 { return FOG; }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 76 "VRML97.l"
+#line 77 "VRML97.l"
 { return FONTSTYLE; }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 77 "VRML97.l"
+#line 78 "VRML97.l"
 { return GROUP; }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 78 "VRML97.l"
+#line 79 "VRML97.l"
 { return IMAGE_TEXTURE; }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 79 "VRML97.l"
+#line 80 "VRML97.l"
 { return INDEXEDFACESET; }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 80 "VRML97.l"
+#line 81 "VRML97.l"
 { return INDEXEDLINESET; }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 81 "VRML97.l"
+#line 82 "VRML97.l"
 { return INLINE; }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 82 "VRML97.l"
+#line 83 "VRML97.l"
 { return LOD; }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 83 "VRML97.l"
+#line 84 "VRML97.l"
 { return MATERIAL; }
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 84 "VRML97.l"
+#line 85 "VRML97.l"
 { return MOVIE_TEXTURE; }
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 85 "VRML97.l"
+#line 86 "VRML97.l"
 { return NAVIGATION_INFO; }
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 86 "VRML97.l"
+#line 87 "VRML97.l"
 { return NORMAL; }
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 87 "VRML97.l"
+#line 88 "VRML97.l"
 { return NORMAL_INTERP; }
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 88 "VRML97.l"
+#line 89 "VRML97.l"
 { yylval.ival = 1; return NUMBER; }
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 89 "VRML97.l"
+#line 90 "VRML97.l"
 { yylval.ival = 0; return NUMBER; }
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 90 "VRML97.l"
+#line 91 "VRML97.l"
 { return ORIENTATION_INTERP; }
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 91 "VRML97.l"
+#line 92 "VRML97.l"
 { return PIXEL_TEXTURE; }
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 92 "VRML97.l"
+#line 93 "VRML97.l"
 { return PLANE_SENSOR; }
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 93 "VRML97.l"
+#line 94 "VRML97.l"
 { return POINTLIGHT; }
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 94 "VRML97.l"
+#line 95 "VRML97.l"
 { return POINTSET; }
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 95 "VRML97.l"
+#line 96 "VRML97.l"
 { return POSITION_INTERP; }
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
-#line 96 "VRML97.l"
+#line 97 "VRML97.l"
 { return PROXIMITY_SENSOR; }
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
-#line 97 "VRML97.l"
+#line 98 "VRML97.l"
 { return SCALAR_INTERP; }
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
-#line 98 "VRML97.l"
+#line 99 "VRML97.l"
 { BEGIN SCRIPTNODE;	return SCRIPT; }
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
-#line 99 "VRML97.l"
+#line 100 "VRML97.l"
 { return SHAPE; }
 	YY_BREAK
 case 59:
 YY_RULE_SETUP
-#line 100 "VRML97.l"
+#line 101 "VRML97.l"
 { return SOUND; }
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
-#line 101 "VRML97.l"
+#line 102 "VRML97.l"
 { return SPHERE; }
 	YY_BREAK
 case 61:
 YY_RULE_SETUP
-#line 102 "VRML97.l"
+#line 103 "VRML97.l"
 { return SPHERE_SENSOR; }
 	YY_BREAK
 case 62:
 YY_RULE_SETUP
-#line 103 "VRML97.l"
+#line 104 "VRML97.l"
 { return SPOTLIGHT; }
 	YY_BREAK
 case 63:
 YY_RULE_SETUP
-#line 104 "VRML97.l"
+#line 105 "VRML97.l"
 { return SWITCH; }
 	YY_BREAK
 case 64:
 YY_RULE_SETUP
-#line 105 "VRML97.l"
+#line 106 "VRML97.l"
 { return TEXT; }
 	YY_BREAK
 case 65:
 YY_RULE_SETUP
-#line 106 "VRML97.l"
+#line 107 "VRML97.l"
 { return TEXTURE_COORDINATE; }
 	YY_BREAK
 case 66:
 YY_RULE_SETUP
-#line 107 "VRML97.l"
+#line 108 "VRML97.l"
 { return TEXTURE_TRANSFORM; }
 	YY_BREAK
 case 67:
 YY_RULE_SETUP
-#line 108 "VRML97.l"
+#line 109 "VRML97.l"
 { return TIME_SENSOR; }
 	YY_BREAK
 case 68:
 YY_RULE_SETUP
-#line 109 "VRML97.l"
+#line 110 "VRML97.l"
 { return TOUCH_SENSOR; }
 	YY_BREAK
 case 69:
 YY_RULE_SETUP
-#line 110 "VRML97.l"
+#line 111 "VRML97.l"
 { return TRANSFORM; }
 	YY_BREAK
 case 70:
 YY_RULE_SETUP
-#line 111 "VRML97.l"
+#line 112 "VRML97.l"
 { return VIEWPOINT; }
 	YY_BREAK
 case 71:
 YY_RULE_SETUP
-#line 112 "VRML97.l"
+#line 113 "VRML97.l"
 { return VISIBILITY_SENSOR; }
 	YY_BREAK
 case 72:
 YY_RULE_SETUP
-#line 113 "VRML97.l"
+#line 114 "VRML97.l"
 { return WORLD_INFO; }
 	YY_BREAK
 case 73:
 YY_RULE_SETUP
-#line 115 "VRML97.l"
+#line 116 "VRML97.l"
 { return S_AMBIENT_INTENSITY; }
 	YY_BREAK
 case 74:
 YY_RULE_SETUP
-#line 116 "VRML97.l"
+#line 117 "VRML97.l"
 { return S_APPEARANCE; }
 	YY_BREAK
 case 75:
 YY_RULE_SETUP
-#line 117 "VRML97.l"
+#line 118 "VRML97.l"
 { return S_ATTENUATION; }
 	YY_BREAK
 case 76:
 YY_RULE_SETUP
-#line 118 "VRML97.l"
+#line 119 "VRML97.l"
 { return S_AUTO_OFFSET; }
 	YY_BREAK
 case 77:
 YY_RULE_SETUP
-#line 119 "VRML97.l"
+#line 120 "VRML97.l"
 { return S_AVATAR_SIZE; }
 	YY_BREAK
 case 78:
 YY_RULE_SETUP
-#line 120 "VRML97.l"
+#line 121 "VRML97.l"
 { return S_AXIS_OF_ROTATION;}
 	YY_BREAK
 case 79:
 YY_RULE_SETUP
-#line 121 "VRML97.l"
+#line 122 "VRML97.l"
 { return S_BACKURL; }
 	YY_BREAK
 case 80:
 YY_RULE_SETUP
-#line 122 "VRML97.l"
+#line 123 "VRML97.l"
 { return S_BBOXCENTER; }
 	YY_BREAK
 case 81:
 YY_RULE_SETUP
-#line 123 "VRML97.l"
+#line 124 "VRML97.l"
 { return S_BBOXSIZE; }
 	YY_BREAK
 case 82:
 YY_RULE_SETUP
-#line 124 "VRML97.l"
+#line 125 "VRML97.l"
 { return S_BERM_WIDTH; }
 	YY_BREAK
 case 83:
 YY_RULE_SETUP
-#line 125 "VRML97.l"
+#line 126 "VRML97.l"
 { return S_BEGIN_CAP; }
 	YY_BREAK
 case 84:
 YY_RULE_SETUP
-#line 126 "VRML97.l"
+#line 127 "VRML97.l"
 { return S_BOTTOM; }
 	YY_BREAK
 case 85:
 YY_RULE_SETUP
-#line 127 "VRML97.l"
+#line 128 "VRML97.l"
 { return S_BOTTOMRADIUS; }
 	YY_BREAK
 case 86:
 YY_RULE_SETUP
-#line 128 "VRML97.l"
+#line 129 "VRML97.l"
 { return S_BOTTOMURL; }
 	YY_BREAK
 case 87:
 YY_RULE_SETUP
-#line 129 "VRML97.l"
+#line 130 "VRML97.l"
 { return S_CCW; }
 	YY_BREAK
 case 88:
 YY_RULE_SETUP
-#line 130 "VRML97.l"
+#line 131 "VRML97.l"
 { return S_CENTER; }
 	YY_BREAK
 case 89:
 YY_RULE_SETUP
-#line 131 "VRML97.l"
+#line 132 "VRML97.l"
 { return S_CHILDREN; }
 	YY_BREAK
 case 90:
 YY_RULE_SETUP
-#line 132 "VRML97.l"
+#line 133 "VRML97.l"
 { return S_CHOICE; }
 	YY_BREAK
 case 91:
 YY_RULE_SETUP
-#line 133 "VRML97.l"
+#line 134 "VRML97.l"
 { return S_COLLIDE; }
 	YY_BREAK
 case 92:
 YY_RULE_SETUP
-#line 134 "VRML97.l"
+#line 135 "VRML97.l"
 { return S_COLLIDETIME;}
 	YY_BREAK
 case 93:
 YY_RULE_SETUP
-#line 135 "VRML97.l"
+#line 136 "VRML97.l"
 { return S_COLOR; }
 	YY_BREAK
 case 94:
 YY_RULE_SETUP
-#line 136 "VRML97.l"
+#line 137 "VRML97.l"
 { return S_COLOR_INDEX; }
 	YY_BREAK
 case 95:
 YY_RULE_SETUP
-#line 137 "VRML97.l"
+#line 138 "VRML97.l"
 { return S_COLOR_PER_VERTEX; }
 	YY_BREAK
 case 96:
 YY_RULE_SETUP
-#line 138 "VRML97.l"
+#line 139 "VRML97.l"
 { return S_CONVEX; }
 	YY_BREAK
 case 97:
 YY_RULE_SETUP
-#line 139 "VRML97.l"
+#line 140 "VRML97.l"
 { return S_COORD; }
 	YY_BREAK
 case 98:
 YY_RULE_SETUP
-#line 140 "VRML97.l"
+#line 141 "VRML97.l"
 { return S_COORD_INDEX; }
 	YY_BREAK
 case 99:
 YY_RULE_SETUP
-#line 141 "VRML97.l"
+#line 142 "VRML97.l"
 { return S_CREASE_ANGLE;}
 	YY_BREAK
 case 100:
 YY_RULE_SETUP
-#line 142 "VRML97.l"
+#line 143 "VRML97.l"
 { return S_CROSS_SECTION; }
 	YY_BREAK
 case 101:
 YY_RULE_SETUP
-#line 143 "VRML97.l"
+#line 144 "VRML97.l"
 { return S_CUTOFFANGLE; }
 	YY_BREAK
 case 102:
 YY_RULE_SETUP
-#line 144 "VRML97.l"
+#line 145 "VRML97.l"
 { return S_CYCLE_INTERVAL; }
 	YY_BREAK
 case 103:
 YY_RULE_SETUP
-#line 145 "VRML97.l"
+#line 146 "VRML97.l"
 { return S_DESCRIPTION; }
 	YY_BREAK
 case 104:
 YY_RULE_SETUP
-#line 146 "VRML97.l"
+#line 147 "VRML97.l"
 { return S_DIFFUSECOLOR; }
 	YY_BREAK
 case 105:
 YY_RULE_SETUP
-#line 147 "VRML97.l"
+#line 148 "VRML97.l"
 { return S_DIRECTION; }
 	YY_BREAK
 case 106:
 YY_RULE_SETUP
-#line 148 "VRML97.l"
+#line 149 "VRML97.l"
 { return S_DISK_ANGLE; }
 	YY_BREAK
 case 107:
 YY_RULE_SETUP
-#line 149 "VRML97.l"
+#line 150 "VRML97.l"
 { return S_EMISSIVECOLOR; }
 	YY_BREAK
 case 108:
 YY_RULE_SETUP
-#line 150 "VRML97.l"
+#line 151 "VRML97.l"
 { return S_ENABLED; }
 	YY_BREAK
 case 109:
 YY_RULE_SETUP
-#line 151 "VRML97.l"
+#line 152 "VRML97.l"
 { return S_END_CAP; }
 	YY_BREAK
 case 110:
 YY_RULE_SETUP
-#line 152 "VRML97.l"
+#line 153 "VRML97.l"
 { return S_FAMILY; }
 	YY_BREAK
 case 111:
 YY_RULE_SETUP
-#line 153 "VRML97.l"
+#line 154 "VRML97.l"
 { return S_FIELD_OF_VIEW; }
 	YY_BREAK
 case 112:
 YY_RULE_SETUP
-#line 154 "VRML97.l"
+#line 155 "VRML97.l"
 { return S_FOG_TYPE; }
 	YY_BREAK
 case 113:
 YY_RULE_SETUP
-#line 155 "VRML97.l"
+#line 156 "VRML97.l"
 { return S_FONTSTYLE; }
 	YY_BREAK
 case 114:
 YY_RULE_SETUP
-#line 156 "VRML97.l"
+#line 157 "VRML97.l"
 { return S_FRONTURL; }
 	YY_BREAK
 case 115:
 YY_RULE_SETUP
-#line 157 "VRML97.l"
+#line 158 "VRML97.l"
 { return S_GEOMETRY; }
 	YY_BREAK
 case 116:
 YY_RULE_SETUP
-#line 158 "VRML97.l"
+#line 159 "VRML97.l"
 { return S_GROUNDANGLE; }
 	YY_BREAK
 case 117:
 YY_RULE_SETUP
-#line 159 "VRML97.l"
+#line 160 "VRML97.l"
 { return S_GROUNDCOLOR; }
 	YY_BREAK
 case 118:
 YY_RULE_SETUP
-#line 160 "VRML97.l"
+#line 161 "VRML97.l"
 { return S_HEADLIGHT; }
 	YY_BREAK
 case 119:
 YY_RULE_SETUP
-#line 161 "VRML97.l"
+#line 162 "VRML97.l"
 { return S_HEIGHT; }
 	YY_BREAK
 case 120:
 YY_RULE_SETUP
-#line 162 "VRML97.l"
+#line 163 "VRML97.l"
 { return S_HORIZONTAL; }
 	YY_BREAK
 case 121:
 YY_RULE_SETUP
-#line 163 "VRML97.l"
+#line 164 "VRML97.l"
 { return S_IMAGE; }
 	YY_BREAK
 case 122:
 YY_RULE_SETUP
-#line 164 "VRML97.l"
+#line 165 "VRML97.l"
 { return S_INFO; }
 	YY_BREAK
 case 123:
 YY_RULE_SETUP
-#line 165 "VRML97.l"
+#line 166 "VRML97.l"
 { return S_INTENSITY; }
 	YY_BREAK
 case 124:
 YY_RULE_SETUP
-#line 166 "VRML97.l"
+#line 167 "VRML97.l"
 { return S_JUMP; }
 	YY_BREAK
 case 125:
 YY_RULE_SETUP
-#line 167 "VRML97.l"
+#line 168 "VRML97.l"
 { return S_JUSTIFY; }
 	YY_BREAK
 case 126:
 YY_RULE_SETUP
-#line 168 "VRML97.l"
+#line 169 "VRML97.l"
 { return S_KEY; }
 	YY_BREAK
 case 127:
 YY_RULE_SETUP
-#line 169 "VRML97.l"
+#line 170 "VRML97.l"
 { return S_KEYVALUE; }
 	YY_BREAK
 case 128:
 YY_RULE_SETUP
-#line 170 "VRML97.l"
+#line 171 "VRML97.l"
 { return S_LANGUAGE; }
 	YY_BREAK
 case 129:
 YY_RULE_SETUP
-#line 171 "VRML97.l"
+#line 172 "VRML97.l"
 { return S_LEFT2RIGHT; }
 	YY_BREAK
 case 130:
 YY_RULE_SETUP
-#line 172 "VRML97.l"
+#line 173 "VRML97.l"
 { return S_LEFTURL; }
 	YY_BREAK
 case 131:
 YY_RULE_SETUP
-#line 173 "VRML97.l"
+#line 174 "VRML97.l"
 { return S_LENGTH; }
 	YY_BREAK
 case 132:
 YY_RULE_SETUP
-#line 174 "VRML97.l"
+#line 175 "VRML97.l"
 { return S_LEVEL; }
 	YY_BREAK
 case 133:
 YY_RULE_SETUP
-#line 175 "VRML97.l"
+#line 176 "VRML97.l"
 { return S_LOCATION; }
 	YY_BREAK
 case 134:
 YY_RULE_SETUP
-#line 176 "VRML97.l"
+#line 177 "VRML97.l"
 { return S_LOOP; }
 	YY_BREAK
 case 135:
 YY_RULE_SETUP
-#line 177 "VRML97.l"
+#line 178 "VRML97.l"
 { return S_MATERIAL; }
 	YY_BREAK
 case 136:
 YY_RULE_SETUP
-#line 178 "VRML97.l"
+#line 179 "VRML97.l"
 { return S_MAX_ANGLE; }
 	YY_BREAK
 case 137:
 YY_RULE_SETUP
-#line 179 "VRML97.l"
+#line 180 "VRML97.l"
 { return S_MAX_BACK; }
 	YY_BREAK
 case 138:
 YY_RULE_SETUP
-#line 180 "VRML97.l"
+#line 181 "VRML97.l"
 { return S_MAX_EXTENT; }
 	YY_BREAK
 case 139:
 YY_RULE_SETUP
-#line 181 "VRML97.l"
+#line 182 "VRML97.l"
 { return S_MAX_FRONT; }
 	YY_BREAK
 case 140:
 YY_RULE_SETUP
-#line 182 "VRML97.l"
+#line 183 "VRML97.l"
 { return S_MAX_POSITION; }
 	YY_BREAK
 case 141:
 YY_RULE_SETUP
-#line 183 "VRML97.l"
+#line 184 "VRML97.l"
 { return S_MIN_ANGLE; }
 	YY_BREAK
 case 142:
 YY_RULE_SETUP
-#line 184 "VRML97.l"
+#line 185 "VRML97.l"
 { return S_MIN_BACK; }
 	YY_BREAK
 case 143:
 YY_RULE_SETUP
-#line 185 "VRML97.l"
+#line 186 "VRML97.l"
 { return S_MIN_FRONT; }
 	YY_BREAK
 case 144:
 YY_RULE_SETUP
-#line 186 "VRML97.l"
+#line 187 "VRML97.l"
 { return S_MIN_POSITION; }
 	YY_BREAK
 case 145:
 YY_RULE_SETUP
-#line 187 "VRML97.l"
+#line 188 "VRML97.l"
 { return S_NORMAL; }
 	YY_BREAK
 case 146:
 YY_RULE_SETUP
-#line 188 "VRML97.l"
+#line 189 "VRML97.l"
 { return S_NORMAL_INDEX; }
 	YY_BREAK
 case 147:
 YY_RULE_SETUP
-#line 189 "VRML97.l"
+#line 190 "VRML97.l"
 { return S_NORMAL_PER_VERTEX; }
 	YY_BREAK
 case 148:
 YY_RULE_SETUP
-#line 190 "VRML97.l"
+#line 191 "VRML97.l"
 { return S_OFFSET;}
 	YY_BREAK
 case 149:
 YY_RULE_SETUP
-#line 191 "VRML97.l"
+#line 192 "VRML97.l"
 { return S_ON; }
 	YY_BREAK
 case 150:
 YY_RULE_SETUP
-#line 192 "VRML97.l"
+#line 193 "VRML97.l"
 { return S_ORIENTATION; }
 	YY_BREAK
 case 151:
 YY_RULE_SETUP
-#line 193 "VRML97.l"
+#line 194 "VRML97.l"
 { return S_PARAMETER; }
 	YY_BREAK
 case 152:
 YY_RULE_SETUP
-#line 194 "VRML97.l"
+#line 195 "VRML97.l"
 { return S_PICTH; }
 	YY_BREAK
 case 153:
 YY_RULE_SETUP
-#line 195 "VRML97.l"
+#line 196 "VRML97.l"
 { return S_POINT; }
 	YY_BREAK
 case 154:
 YY_RULE_SETUP
-#line 196 "VRML97.l"
+#line 197 "VRML97.l"
 { return S_POSITION; }
 	YY_BREAK
 case 155:
 YY_RULE_SETUP
-#line 197 "VRML97.l"
+#line 198 "VRML97.l"
 { return S_PRIORITY; }
 	YY_BREAK
 case 156:
 YY_RULE_SETUP
-#line 198 "VRML97.l"
+#line 199 "VRML97.l"
 { return S_PROXY; }
 	YY_BREAK
 case 157:
 YY_RULE_SETUP
-#line 199 "VRML97.l"
+#line 200 "VRML97.l"
 { return S_RADIUS; }
 	YY_BREAK
 case 158:
 YY_RULE_SETUP
-#line 200 "VRML97.l"
+#line 201 "VRML97.l"
 { return S_RANGE; }
 	YY_BREAK
 case 159:
 YY_RULE_SETUP
-#line 201 "VRML97.l"
+#line 202 "VRML97.l"
 { return S_REPEAT_S; }
 	YY_BREAK
 case 160:
 YY_RULE_SETUP
-#line 202 "VRML97.l"
+#line 203 "VRML97.l"
 { return S_REPEAT_T; }
 	YY_BREAK
 case 161:
 YY_RULE_SETUP
-#line 203 "VRML97.l"
+#line 204 "VRML97.l"
 { return S_RIGHTURL; }
 	YY_BREAK
 case 162:
 YY_RULE_SETUP
-#line 204 "VRML97.l"
+#line 205 "VRML97.l"
 { return S_ROTATION; }
 	YY_BREAK
 case 163:
 YY_RULE_SETUP
-#line 205 "VRML97.l"
+#line 206 "VRML97.l"
 { return S_SCALE; }
 	YY_BREAK
 case 164:
 YY_RULE_SETUP
-#line 206 "VRML97.l"
+#line 207 "VRML97.l"
 { return S_SCALEORIENTATION; }
 	YY_BREAK
 case 165:
 YY_RULE_SETUP
-#line 207 "VRML97.l"
+#line 208 "VRML97.l"
 { return S_SHININESS; }
 	YY_BREAK
 case 166:
 YY_RULE_SETUP
-#line 208 "VRML97.l"
+#line 209 "VRML97.l"
 { return S_SIDE; }
 	YY_BREAK
 case 167:
 YY_RULE_SETUP
-#line 209 "VRML97.l"
+#line 210 "VRML97.l"
 { return S_SIZE; }
 	YY_BREAK
 case 168:
 YY_RULE_SETUP
-#line 210 "VRML97.l"
+#line 211 "VRML97.l"
 { return S_SKYANGLE; }
 	YY_BREAK
 case 169:
 YY_RULE_SETUP
-#line 211 "VRML97.l"
+#line 212 "VRML97.l"
 { return S_SKYCOLOR; }
 	YY_BREAK
 case 170:
 YY_RULE_SETUP
-#line 212 "VRML97.l"
+#line 213 "VRML97.l"
 { return S_SOLID;}
 	YY_BREAK
 case 171:
 YY_RULE_SETUP
-#line 213 "VRML97.l"
+#line 214 "VRML97.l"
 { return S_SOURCE; }
 	YY_BREAK
 case 172:
 YY_RULE_SETUP
-#line 214 "VRML97.l"
+#line 215 "VRML97.l"
 { return S_SPACING; }
 	YY_BREAK
 case 173:
 YY_RULE_SETUP
-#line 215 "VRML97.l"
+#line 216 "VRML97.l"
 { return S_SPATIALIZE; }
 	YY_BREAK
 case 174:
 YY_RULE_SETUP
-#line 216 "VRML97.l"
+#line 217 "VRML97.l"
 { return S_SPECULARCOLOR; }
 	YY_BREAK
 case 175:
 YY_RULE_SETUP
-#line 217 "VRML97.l"
+#line 218 "VRML97.l"
 { return S_SPEED; }
 	YY_BREAK
 case 176:
 YY_RULE_SETUP
-#line 218 "VRML97.l"
+#line 219 "VRML97.l"
 { return S_SPINE; }
 	YY_BREAK
 case 177:
 YY_RULE_SETUP
-#line 219 "VRML97.l"
+#line 220 "VRML97.l"
 { return S_STARTTIME; }
 	YY_BREAK
 case 178:
 YY_RULE_SETUP
-#line 220 "VRML97.l"
+#line 221 "VRML97.l"
 { return S_STOPTIME; }
 	YY_BREAK
 case 179:
 YY_RULE_SETUP
-#line 221 "VRML97.l"
+#line 222 "VRML97.l"
 { return S_STRING; }
 	YY_BREAK
 case 180:
 YY_RULE_SETUP
-#line 222 "VRML97.l"
+#line 223 "VRML97.l"
 { return S_STYLE; }
 	YY_BREAK
 case 181:
 YY_RULE_SETUP
-#line 223 "VRML97.l"
+#line 224 "VRML97.l"
 { return S_TEXCOORD; }
 	YY_BREAK
 case 182:
 YY_RULE_SETUP
-#line 224 "VRML97.l"
+#line 225 "VRML97.l"
 { return S_TEXCOORD_INDEX;}
 	YY_BREAK
 case 183:
 YY_RULE_SETUP
-#line 225 "VRML97.l"
+#line 226 "VRML97.l"
 { return S_TEXTURE; }
 	YY_BREAK
 case 184:
 YY_RULE_SETUP
-#line 226 "VRML97.l"
+#line 227 "VRML97.l"
 { return S_TEXTURETRANSFORM; }
 	YY_BREAK
 case 185:
 YY_RULE_SETUP
-#line 227 "VRML97.l"
+#line 228 "VRML97.l"
 { return S_TITLE; }
 	YY_BREAK
 case 186:
 YY_RULE_SETUP
-#line 228 "VRML97.l"
+#line 229 "VRML97.l"
 { return S_TOP; }
 	YY_BREAK
 case 187:
 YY_RULE_SETUP
-#line 229 "VRML97.l"
+#line 230 "VRML97.l"
 { return S_TOP2BOTTOM; }
 	YY_BREAK
 case 188:
 YY_RULE_SETUP
-#line 230 "VRML97.l"
+#line 231 "VRML97.l"
 { return S_TOPURL; }
 	YY_BREAK
 case 189:
 YY_RULE_SETUP
-#line 231 "VRML97.l"
+#line 232 "VRML97.l"
 { return S_TRANSLATION; }
 	YY_BREAK
 case 190:
 YY_RULE_SETUP
-#line 232 "VRML97.l"
+#line 233 "VRML97.l"
 { return S_TRANSPARENCY; }
 	YY_BREAK
 case 191:
 YY_RULE_SETUP
-#line 233 "VRML97.l"
+#line 234 "VRML97.l"
 { return S_TYPE; }
 	YY_BREAK
 case 192:
 YY_RULE_SETUP
-#line 234 "VRML97.l"
+#line 235 "VRML97.l"
 { return S_URL; }
 	YY_BREAK
 case 193:
 YY_RULE_SETUP
-#line 235 "VRML97.l"
+#line 236 "VRML97.l"
 { return S_VECTOR; }
 	YY_BREAK
 case 194:
 YY_RULE_SETUP
-#line 236 "VRML97.l"
+#line 237 "VRML97.l"
 { return S_VISIBILITY_LIMIT; }
 	YY_BREAK
 case 195:
 YY_RULE_SETUP
-#line 237 "VRML97.l"
+#line 238 "VRML97.l"
 { return S_VISIBILITY_RANGE; }
 	YY_BREAK
 case 196:
 YY_RULE_SETUP
-#line 238 "VRML97.l"
+#line 239 "VRML97.l"
 { return S_WHICHCHILD; }
 	YY_BREAK
 case 197:
 YY_RULE_SETUP
-#line 239 "VRML97.l"
+#line 240 "VRML97.l"
 { return S_WHICHCHOICE; }
 	YY_BREAK
 case 198:
 YY_RULE_SETUP
-#line 240 "VRML97.l"
+#line 241 "VRML97.l"
 { return S_XDIMENSION; }
 	YY_BREAK
 case 199:
 YY_RULE_SETUP
-#line 241 "VRML97.l"
+#line 242 "VRML97.l"
 { return S_XSPACING; }
 	YY_BREAK
 case 200:
 YY_RULE_SETUP
-#line 242 "VRML97.l"
+#line 243 "VRML97.l"
 { return S_ZDIMENSION; }
 	YY_BREAK
 case 201:
 YY_RULE_SETUP
-#line 243 "VRML97.l"
+#line 244 "VRML97.l"
 { return S_ZSPACING; }
 	YY_BREAK
 case 202:
 YY_RULE_SETUP
-#line 245 "VRML97.l"
+#line 246 "VRML97.l"
 { return S_VALUE_CHANGED; }
 	YY_BREAK
 case 203:
 YY_RULE_SETUP
-#line 247 "VRML97.l"
+#line 248 "VRML97.l"
 {
-	int c, n;
-	c = n = 0;
+	int c = 0;
+	std::ostringstream defBuf;
 	do {
 		c = input();
-		buffer[n++] = c;
+		defBuf << (char)(c);
 	} while (c != '{' && c != EOF);
-	buffer[n-1] = '\0';
 
 	char	defName[256];
 	char	nodeName[256];
-	sscanf(buffer, "%s %s", defName, nodeName);
+	std::string defStr = defBuf.str();
+	const char *defCStr = defStr.c_str();
+	sscanf(defStr.c_str(), "%s %s", defName, nodeName);
 
-	sprintf(buffer, "%s {", nodeName);
+	std::string unputbuf;
+	unputbuf.append(nodeName);
+	unputbuf.append(" {");
 
 	SetDEFName(defName);
-	UnputString(buffer);
+	UnputString((char *)unputbuf.c_str());
 }
 	YY_BREAK
 case 204:
 YY_RULE_SETUP
-#line 266 "VRML97.l"
+#line 270 "VRML97.l"
 {
-	int c, n;
-	c = n = 0;
-
+	std::ostringstream useBuf;
+	int c = 0;
 	do {
 		c = input();
 		if (c == '\n')
@@ -2568,16 +2585,16 @@ YY_RULE_SETUP
 	} while (c == '\t' || c == ' ');
 
 	while (('0' <= c && c <= '9') || ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z') || c == '_' || c == '-' || c == '+') {
-		buffer[n++] = c;
+		useBuf << (char)(c);
 		c = input();
 		if (c == '\n')
 			nCurrentLine++;
 	}
-	buffer[n] = '\0';
 	unput(c);
 
+	std::string useStr = useBuf.str();
 #ifdef UNUSE_DEF_NODE
-	Node *defNode = GetParserObject()->findNode(buffer);
+	Node *defNode = GetParserObject()->findLastNode(useStr.c_str());
 	Node *useParentNode = GetCurrentNodeObject();
 	if (defNode) {	
 		if (useParentNode == NULL || (useParentNode != defNode && useParentNode->isAncestorNode(defNode) == false)) {
@@ -2588,7 +2605,7 @@ YY_RULE_SETUP
 	}
 	return USE;
 #else
-	Node *node = GetParserObject()->findNode(buffer);
+	Node *node = GetParserObject()->findLastNode(useStr.c_str());
 	if (node) {
 		Node *defNode = node->createDEFNode();
 		ParserAddNode(defNode);
@@ -2599,24 +2616,24 @@ YY_RULE_SETUP
 	YY_BREAK
 case 205:
 YY_RULE_SETUP
-#line 306 "VRML97.l"
+#line 309 "VRML97.l"
 {
-	int c, n;
-	c = n = 0;
+	std::ostringstream protoNameBuf;
+	int c = 0;
 	do {
 		c = input();
-		buffer[n++] = c;
+		protoNameBuf << (char)(c);
 		if (c == '\n')
 			nCurrentLine++;
 	} while (c != '[' && c != EOF);
-	buffer[n-1] = '\0';
 
-	char *protoName = new char[strlen(buffer)+1];
-	sscanf(buffer, "%s", protoName);
+	std::string protoNameStr = protoNameBuf.str();
+	char *protoName = new char[protoNameStr.length()+1];
+	sscanf(protoNameStr.c_str(), "%s", protoName);
 
 	int bigBracket = 1;
 
-	n = 0;
+	std::ostringstream fieldBuf;
 	do {
 		c = input();
 		if (c == ']') {
@@ -2628,12 +2645,9 @@ YY_RULE_SETUP
 			bigBracket++;
 		if (c == '\n')
 			nCurrentLine++;
-		buffer[n++] = c;
+		fieldBuf << (char)(c);
 	} while (c != EOF);
-	buffer[n-1] = '\0';
-
-	char *fieldString = new char[strlen(buffer)+1];
-	strcpy(fieldString, buffer);
+	std::string fieldString = fieldBuf.str();
 
 	while (c != '{' && c != EOF) {
 		c = input();
@@ -2641,10 +2655,10 @@ YY_RULE_SETUP
 			nCurrentLine++;
 	}
 
-	n = 0;
+	std::ostringstream protoDefBuf;
 	do {
 		c = input();
-		buffer[n++] = c;
+		protoDefBuf << (char)(c);
 		if (c == '\n')
 			nCurrentLine++;
 	} while (c != '{' && c != EOF);
@@ -2674,15 +2688,14 @@ YY_RULE_SETUP
 				do {
 					c = input();
 				} while (c != '\n');
-				buffer[n++] = '\n';
+				protoDefBuf << '\n';
 				nCurrentLine++;
 			}
 		}
 
-		buffer[n++] = c;
+		protoDefBuf << (char)(c);
 
 	} while (0 < inputFlag && c != EOF);
-	buffer[n] = '\0';
 
 	do {
 		c = input();
@@ -2690,34 +2703,32 @@ YY_RULE_SETUP
 			nCurrentLine++;
 	} while (c != '}' && c != EOF);
 
-	PROTO *proto = AddPROTOInfo(protoName, buffer, fieldString);
-//	proto->getString(buffer);
-//	UnputString(buffer);
+	std::string protoDefSet = protoDefBuf.str();
+	PROTO *proto = AddPROTOInfo(protoName, (char *)protoDefSet.c_str(), (char *)fieldString.c_str());
 
-	delete protoName;
-	delete[] fieldString;
+	delete []protoName;
 }
 	YY_BREAK
 case 206:
 YY_RULE_SETUP
-#line 404 "VRML97.l"
+#line 401 "VRML97.l"
 {
-	int c, n;
-	c = n = 0;
+	int c = 0;
+	std::ostringstream routeBuf;
 	do {
 		c = input();
 		if (c == '\n')
 			CurrentLineIncrement();
 		else
-			buffer[n++] = c;
+			routeBuf << (char)(c);
 	} while (c != '\n' && c != EOF);
-	buffer[n] = '\0';
-	ParserAddRouteInfo(buffer);
+	std::string routeStr = routeBuf.str();
+	ParserAddRouteInfo((char *)routeStr.c_str());
 }
 	YY_BREAK
 case 207:
 YY_RULE_SETUP
-#line 418 "VRML97.l"
+#line 415 "VRML97.l"
 {
 
 	PROTO *proto = IsPROTOName(yytext);
@@ -2764,155 +2775,155 @@ YY_RULE_SETUP
 		proto->deleteFields();
 	}
 	else {
-		strcpy(name, yytext);
-		yylval.sval = name;	
-		return	NAME;
+		name = yytext;
+		yylval.sval = (char *)name.c_str();	
+		return NAME;
 	}
 }
 	YY_BREAK
 case 208:
 YY_RULE_SETUP
-#line 470 "VRML97.l"
+#line 467 "VRML97.l"
 { return S_DIRECT_OUTPUT; }
 	YY_BREAK
 case 209:
 YY_RULE_SETUP
-#line 471 "VRML97.l"
+#line 468 "VRML97.l"
 { return S_MUST_EVALUATE; }
 	YY_BREAK
 case 210:
 YY_RULE_SETUP
-#line 472 "VRML97.l"
+#line 469 "VRML97.l"
 { return S_URL; }
 	YY_BREAK
 case 211:
 YY_RULE_SETUP
-#line 474 "VRML97.l"
+#line 471 "VRML97.l"
 { return FIELD; }
 	YY_BREAK
 case 212:
 YY_RULE_SETUP
-#line 475 "VRML97.l"
+#line 472 "VRML97.l"
 { return EVENTIN; }
 	YY_BREAK
 case 213:
 YY_RULE_SETUP
-#line 476 "VRML97.l"
+#line 473 "VRML97.l"
 { return EVENTOUT; }
 	YY_BREAK
 case 214:
 YY_RULE_SETUP
-#line 478 "VRML97.l"
+#line 475 "VRML97.l"
 { return SFBOOL; }
 	YY_BREAK
 case 215:
 YY_RULE_SETUP
-#line 479 "VRML97.l"
+#line 476 "VRML97.l"
 { return SFFLOAT; }
 	YY_BREAK
 case 216:
 YY_RULE_SETUP
-#line 480 "VRML97.l"
+#line 477 "VRML97.l"
 { return SFINT32; }
 	YY_BREAK
 case 217:
 YY_RULE_SETUP
-#line 481 "VRML97.l"
+#line 478 "VRML97.l"
 { return SFTIME; }
 	YY_BREAK
 case 218:
 YY_RULE_SETUP
-#line 482 "VRML97.l"
+#line 479 "VRML97.l"
 { return SFROTATION; }
 	YY_BREAK
 case 219:
 YY_RULE_SETUP
-#line 483 "VRML97.l"
+#line 480 "VRML97.l"
 { return SFNODE; }
 	YY_BREAK
 case 220:
 YY_RULE_SETUP
-#line 484 "VRML97.l"
+#line 481 "VRML97.l"
 { return SFCOLOR; }
 	YY_BREAK
 case 221:
 YY_RULE_SETUP
-#line 485 "VRML97.l"
+#line 482 "VRML97.l"
 { return SFSTRING; }
 	YY_BREAK
 case 222:
 YY_RULE_SETUP
-#line 486 "VRML97.l"
+#line 483 "VRML97.l"
 { return SFVEC2F; }
 	YY_BREAK
 case 223:
 YY_RULE_SETUP
-#line 487 "VRML97.l"
+#line 484 "VRML97.l"
 { return SFVEC3F; }
 	YY_BREAK
 case 224:
 YY_RULE_SETUP
-#line 489 "VRML97.l"
+#line 486 "VRML97.l"
 { return MFBOOL; }
 	YY_BREAK
 case 225:
 YY_RULE_SETUP
-#line 490 "VRML97.l"
+#line 487 "VRML97.l"
 { return MFFLOAT; }
 	YY_BREAK
 case 226:
 YY_RULE_SETUP
-#line 491 "VRML97.l"
+#line 488 "VRML97.l"
 { return MFINT32; }
 	YY_BREAK
 case 227:
 YY_RULE_SETUP
-#line 492 "VRML97.l"
+#line 489 "VRML97.l"
 { return MFTIME; }
 	YY_BREAK
 case 228:
 YY_RULE_SETUP
-#line 493 "VRML97.l"
+#line 490 "VRML97.l"
 { return MFROTATION; }
 	YY_BREAK
 case 229:
 YY_RULE_SETUP
-#line 494 "VRML97.l"
+#line 491 "VRML97.l"
 { return MFNODE; }
 	YY_BREAK
 case 230:
 YY_RULE_SETUP
-#line 495 "VRML97.l"
+#line 492 "VRML97.l"
 { return MFCOLOR; }
 	YY_BREAK
 case 231:
 YY_RULE_SETUP
-#line 496 "VRML97.l"
+#line 493 "VRML97.l"
 { return MFIMAGE; }
 	YY_BREAK
 case 232:
 YY_RULE_SETUP
-#line 497 "VRML97.l"
+#line 494 "VRML97.l"
 { return MFSTRING; }
 	YY_BREAK
 case 233:
 YY_RULE_SETUP
-#line 498 "VRML97.l"
+#line 495 "VRML97.l"
 { return MFVEC2F; }
 	YY_BREAK
 case 234:
 YY_RULE_SETUP
-#line 499 "VRML97.l"
+#line 496 "VRML97.l"
 { return MFVEC3F; }
 	YY_BREAK
 case 235:
 YY_RULE_SETUP
-#line 501 "VRML97.l"
+#line 498 "VRML97.l"
 { return USE; }
 	YY_BREAK
 case 236:
 YY_RULE_SETUP
-#line 503 "VRML97.l"
+#line 500 "VRML97.l"
 {
 //	char *name = strdup(yytext);
 	char *name = new char[strlen(yytext)+1];
@@ -2923,10 +2934,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 237:
 YY_RULE_SETUP
-#line 511 "VRML97.l"
+#line 508 "VRML97.l"
 ECHO;
 	YY_BREAK
-#line 2930 "lex.yy.c"
+#line 2941 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(SCRIPTNODE):
 	yyterminate();
@@ -3491,9 +3502,13 @@ YY_BUFFER_STATE b;
 	}
 
 
+#ifndef _WIN32
+#include <unistd.h>
+#else
 #ifndef YY_ALWAYS_INTERACTIVE
 #ifndef YY_NEVER_INTERACTIVE
 extern int isatty YY_PROTO(( int ));
+#endif
 #endif
 #endif
 
@@ -3813,7 +3828,7 @@ int main()
 	return 0;
 	}
 #endif
-#line 511 "VRML97.l"
+#line 508 "VRML97.l"
 
 
 int yywrap()
@@ -3840,19 +3855,12 @@ void CyberX3D::CurrentLineIncrement()
 
 void CyberX3D::MakeLexerBuffers(int lexBufferSize, int lineBufferSize)
 {
-	buffer = (char *)malloc(sizeof(char) * lexBufferSize);	
-	lineBuffer = (char *)malloc(sizeof(char) * lineBufferSize);	
-	lineBuffer[0] = '\0';
 	yy_current_buffer = yy_create_buffer(yyin, lexBufferSize);
-	name = (char *)malloc(sizeof(char) * lineBufferSize);	
 }
 
 void CyberX3D::DeleteLexerBuffers(void)
 {
-	free(buffer);
-	free(lineBuffer);
 	yy_delete_buffer(yy_current_buffer);
-	free(name);
 }
 
 void CyberX3D::SetLexCallbackFn(void (*func)(int nLine, void *info), void *fnInfo)
@@ -3890,7 +3898,7 @@ int CyberX3D::GetCurrentLineNumber(void)
 
 char *CyberX3D::GetErrorLineString(void)
 {
-  return lineBuffer;
+  return (char *)lineBuffer.c_str();
 }
 
 

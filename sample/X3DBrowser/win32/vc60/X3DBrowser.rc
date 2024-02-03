@@ -69,6 +69,7 @@ BEGIN
     POPUP "File"
     BEGIN
         MENUITEM "Open",                        MENU_FILEOPEN
+        MENUITEM "Save",                        MENU_FILESAVE
         MENUITEM "Quit",                        MENU_QUIT
     END
 END

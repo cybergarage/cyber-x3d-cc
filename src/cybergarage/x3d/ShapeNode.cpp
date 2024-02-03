@@ -6,6 +6,14 @@
 *
 *	File: ShapeNode.cpp
 *
+*	Revision:
+*
+*	12/05/03
+*		- Shenyang <shenyang@163.net>
+*		- Dennis <dennis@cs.uu.nl>
+*		- Simon Goodall <sg02r@ecs.soton.ac.uk> 
+*		- Fixed a output bugs using getType() instead of getTypeName().
+* 
 ******************************************************************/
 
 #include <cybergarage/x3d/ShapeNode.h>
@@ -130,9 +138,9 @@ void ShapeNode::outputContext(std::ostream &printStream, char *indentString)
 	if (node != NULL) {
 		if (node->isInstanceNode() == false) {
 			if (node->getName() != NULL && strlen(node->getName()))
-				printStream << indentString << "\t" << "geometry " << "DEF " << node->getName() << " " << node->Node::getType() << " {" << std::endl;
+				printStream << indentString << "\t" << "geometry " << "DEF " << node->getName() << " " << node->Node::getTypeString() << " {" << std::endl;
 			else
-				printStream << indentString << "\t" << "geometry " << node->getType() << " {" << std::endl;
+				printStream << indentString << "\t" << "geometry " << node->getTypeString() << " {" << std::endl;
 			node->Node::outputContext(printStream, indentString, "\t");
 			printStream << indentString << "\t" << "}" << std::endl;
 		}

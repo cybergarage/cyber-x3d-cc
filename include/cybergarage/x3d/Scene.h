@@ -8,8 +8,8 @@
 *
 ******************************************************************/
 
-#ifndef _CV97_SCENE_H_
-#define _CV97_SCENE_H_
+#ifndef _CX3D_SCENE_H_
+#define _CX3D_SCENE_H_
 
 #include <cybergarage/x3d/NodeList.h>
 #include <cybergarage/x3d/Route.h>
@@ -68,6 +68,9 @@ public:
 	Node *findNode(const char *name);
 	Node *findNode(const int type);
 	Node *findNode(const int type, const char *name);
+
+	Node *findLastNode(const char *name);
+	Node *findDEFNode(const char *name);
 
 	bool hasNode(Node *targetNode);
 

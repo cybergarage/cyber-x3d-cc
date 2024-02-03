@@ -1,10 +1,15 @@
 /******************************************************************
 *
-*	CyberVRML97 for C++
+*	CyberX3D for C++
 *
-*	Copyright (C) Satoshi Konno 1996-2002
+*	Copyright (C) Satoshi Konno 1996-2004
 *
 *	File:	Scene.cpp
+*
+*	03/12/04
+*		- Added findLastNode();
+*	03/17/04
+*		- Added findDEFNode() but not implemented yet.
 *
 ******************************************************************/
 
@@ -106,6 +111,34 @@ bool Scene::hasNode(Node *targetNode)
 			return true;
 	}
 	return false;
+}
+
+Node *Scene::findLastNode(const char *name) 
+{
+	if (!name)
+		return NULL;
+	if (strlen(name) <= 0)
+		return NULL;
+
+	Node *findNode = NULL;
+	String nameStr(name);
+	for (Node *node = getRootNode()->nextTraversal(); node != NULL; node = node->nextTraversal()) {
+		if (node->getName() != NULL) {
+			if (nameStr.compareTo(node->getName()) == 0)
+				findNode = node;
+		}
+	}
+	
+	if (findNode) {
+		while (findNode->isInstanceNode() == true)
+			findNode = findNode->getReferenceNode();
+	}
+	return findNode;
+}
+
+Node *Scene::findDEFNode(const char *name) 
+{
+	return findNode(name);
 }
 
 ///////////////////////////////////////////////

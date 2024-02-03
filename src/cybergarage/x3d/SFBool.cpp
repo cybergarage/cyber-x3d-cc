@@ -6,6 +6,10 @@
 *
 *	File:	SFBool.cpp
 *
+*	03/16/04
+*	- Thanks for Dimitrios Koutsonanos <koutsona@iti.gr>
+*	- Fixed setValue() to set the value using lower strings, "true" and "false".
+*
 ******************************************************************/
 
 #include <cybergarage/x3d/SFBool.h>
@@ -94,9 +98,10 @@ void SFBool::setValue(const char *value)
 {
 	if (!value)
 		return;
-	if (!strcmp(value, "TRUE"))
+	// Thanks for Dimitrios Koutsonanos (03/16/04)
+	if (!strcmp(value, "TRUE") || !strcmp(value, "true"))
 		setValue(true);
-	else if (!strcmp(value, "FALSE"))
+	else if (!strcmp(value, "FALSE") || !strcmp(value, "false"))
 		setValue(false);
 }
 

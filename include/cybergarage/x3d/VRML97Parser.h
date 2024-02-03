@@ -125,6 +125,15 @@ VRML97_WORLDINFO,
 VRML97_WORLDINFO_INFO,
 };
 
+////////////////////////////////////////////////
+// Parser Buffer Size
+////////////////////////////////////////////////
+
+const int VRML97_PARSER_DEFAULT_BUF_SIZE =  512 * 1024;
+
+void VRML97ParserSetBufSize(int bufSize);
+int VRML97ParserGetBufSize();
+
 }
 
 #endif

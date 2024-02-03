@@ -101,7 +101,6 @@ static char sourceNodeTypeName[ROUTE_STRING_MAX];
 
 void CyberX3D::ParserAddRouteInfo(char *string)
 {
-
 	if (!string || !strlen(string))
 		return;
 

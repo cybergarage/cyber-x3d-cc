@@ -18,9 +18,9 @@ namespace CyberX3D {
 
 class PROTO;
 
-/******************************************************************
-*	AddSF* 
-******************************************************************/
+////////////////////////////////////////////////
+// AddSF*
+////////////////////////////////////////////////
 
 void AddSFColor(float color[3]);
 void AddSFRotation(float rotation[4]);
@@ -30,9 +30,9 @@ void AddSFInt32(int value);
 void AddSFFloat(float value);
 void AddSFString(char *string);
 
-/******************************************************************
-*	PROTO/DEF 
-******************************************************************/
+////////////////////////////////////////////////
+// PROTO/DEF
+////////////////////////////////////////////////
 
 PROTO *AddPROTOInfo(char *name, char *string, char *fieldString);
 PROTO *IsPROTOName(char *name);
@@ -43,9 +43,9 @@ char *GetDEFSrting(char *name);
 void SetDEFName(char *name);
 char *GetDEFName(void);
 
-/******************************************************************
-*	lex 
-******************************************************************/
+////////////////////////////////////////////////
+// lex
+////////////////////////////////////////////////
 
 void MakeLexerBuffers(int lexBufferSize, int lineBufferSize);
 void DeleteLexerBuffers(void);
@@ -53,9 +53,9 @@ void SetLexCallbackFn(void (*func)(int nLine, void *info), void *fnInfo);
 int UnputString(char *pBegin);
 void CurrentLineIncrement();
 
-/******************************************************************
-*	yacc
-******************************************************************/
+////////////////////////////////////////////////
+// yacc
+////////////////////////////////////////////////
 
 int GetCurrentLineNumber(void);
 void SetInputFile(FILE *fp);

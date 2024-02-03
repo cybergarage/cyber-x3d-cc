@@ -11,6 +11,9 @@
 *	11/20/02
 *		- Rong Wang <wangr@acusoft.com>
 *		- Changed SF*List syntax to support illegal extra commas, [x, x, x, ,-1...]
+*	01/07/04
+*		- Simon Goodall <sg02r@ecs.soton.ac.uk>
+*		- Added GeometryInfoNode() to set Material nodes in root.
 *
 ******************************************************************/
 
@@ -160,6 +163,8 @@ GeometryInfoNode
 	| Coordinate
 	| Normal
 	| TexCoordinate
+	| Appearance
+	| Material
 	;
 
 LightNode

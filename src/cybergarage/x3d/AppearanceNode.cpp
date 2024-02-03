@@ -11,6 +11,11 @@
 *	12/01/02
 *		- Added the follwing new X3D fields.
 *			lineProperties,  fillProperties
+*	12/05/03
+*		- Shenyang <shenyang@163.net>
+*		- Dennis <dennis@cs.uu.nl>
+*		- Simon Goodall <sg02r@ecs.soton.ac.uk> 
+*		- Fixed a output bugs using getType() instead of getTypeName().
 *
 ******************************************************************/
 
@@ -155,9 +160,9 @@ void AppearanceNode::outputContext(std::ostream &printStream, char *indentString
 	if (texture != NULL) {
 		if (texture->isInstanceNode() == false) {
 			if (texture->getName() != NULL && strlen(texture->getName()))
-				printStream << indentString << "\t" << "texture " << "DEF " << texture->getName() << " " << texture->Node::getType() << " {" << std::endl;
+				printStream << indentString << "\t" << "texture " << "DEF " << texture->getName() << " " << texture->Node::getTypeString() << " {" << std::endl;
 			else
-				printStream << indentString << "\t" << "texture " << texture->Node::getType() << " {" << std::endl;
+				printStream << indentString << "\t" << "texture " << texture->Node::getTypeString() << " {" << std::endl;
 			texture->Node::outputContext(printStream, indentString, "\t");
 			printStream << indentString << "\t" << "}" << std::endl;
 		}

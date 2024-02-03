@@ -6,6 +6,9 @@
 *
 *	File:	Vector.h
 *
+*	03/17/04
+*	- Fixed a memory leak in ~Vector() using STL.
+*
 ******************************************************************/
 
 #ifndef _CV97_VECTOR_H_
@@ -59,7 +62,7 @@ public:
 	}
 
 	~Vector() {
-		clear();
+		removeAllElements();
 	}
 
 	void addElement(T *obj, bool delObjFlag = true) 
